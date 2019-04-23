@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
+    <style>
+        .autocomplete-list {
+            position: absolute;
+        }
+    </style>
+    <script>
+        var fruits = [
+            'Apple',
+            'Orange',
+            'Grape',
+            'Melon',
+            'Water melon'
+        ];
+
+        var colorList = [
+            'red',
+            'green',
+            'yellow',
+            'blue',
+            'white',
+            'brown',
+            'gray'
+        ];
+    </script>
+</head>
+<body>
+    <input type="text" name="fruit" class="autocomplete" placeholder="input fruit">
+    <input type="text" name="color" class="autocomplete" placeholder="input color">
+    <script>
+        function autocompleteFactory($consumer, option) {
+            const autocomplete = new AutoComplete($consumer, option);
+            $consumer.keyup(evt => autocomplete.search(evt.target));
+        }
+
+        AutoComplete = function($consumer, option) {
+            this.$consumer = $consumer;
+            this.$container = $('<div class="autocomplete-list"></div>');
+            this.option = _.assignIn({}, option);
+        }
+
+        AutoComplete.prototype.search = elem => {
+            const $elem = $(elem);
+            const keyword = $elem.val();
+            const result = [];
+            
+            if(keyword === '') {
+                this.$container.empty();
+                return;
+            }
+
+            result = this.findData(keyword);
+
+            this.render(result);
+        }
+
+        AutoComplete.prototype.findData = keyword => {
+            if(this.option.url === 'fruit') {
+                return fruits.filter(fruit => keyword.indexOf(fruit) >= 0);
+            }
+            return colorList.filter(color => keyword.indexOf(color) >= 0);
+        }
+
+        AutoComplete.prototype.render = list => {
+            list.forEach(data => this.$container.append(this.itemTemplate(data)));
+        }
+
+        AutoComplete.prototype.itemTemplate = data => {
+            return `
+                <div class="item" data-item-id="${data.itemId}">
+                    <span>${data.text}</span>
+                </div>
+            `;
+        }
+        
+        $('.autocomplete').toArray().forEach(elem => autocompleteFactory($(elem), {}));
+    </script>
+</body>
+</html>
